@@ -1,0 +1,39 @@
+name: Bathymetry checks
+on:
+  push:
+    paths:
+      - 'bathymetry_web/**'
+      - 'google_sites/**'
+      - '.github/workflows/bathymetry.yml'
+  pull_request:
+    paths:
+      - 'bathymetry_web/**'
+      - 'google_sites/**'
+      - '.github/workflows/bathymetry.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  tests:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    env:
+      PYTHONUTF8: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Python client regressions (no API key or network)
+        run: python -m unittest discover -s bathymetry_web -p test_khoa.py -v
+      - name: Browser client regressions (mock network)
+        run: node google_sites/test_direct.cjs
+      - name: Standalone HTML matches its source
+        run: |
+          python google_sites/build_direct.py
+          git diff --exit-code -- google_sites/GoogleSites_독립실행.html

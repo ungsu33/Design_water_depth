@@ -1,0 +1,12 @@
+# Local credentials and acquired/generated data
+/readme.txt
+.env
+*.key
+.tools/
+__pycache__/
+results/
+
+github/
+google_sites/live_coordinate_regression.json
+google_sites/deployment_status.json
+google_sites/verification*/
